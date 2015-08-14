@@ -1,7 +1,9 @@
 package br.com.fabricadeprogramador.controller;
 
 import java.io.IOException;
+import java.util.List;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -43,6 +45,34 @@ public class EstadoController extends HttpServlet{
 		resp.getWriter().print("Estado salvo");
 		
 	}
+	
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		String acao = req.getParameter("acao");
+		EstadoDAO estadoDAO = new EstadoDAO();
+		
+		if (acao == null || acao.equals("lis")) {
+			//Carregando a lista do banco
+			List<Estado> lista = estadoDAO.buscarTodos();
+			//Adicionando atributo no request
+			req.setAttribute("listaEstado", lista);
+			//Objeto de encaminhamento
+			RequestDispatcher dispatcher = req.getRequestDispatcher("WEB-INF/listaestado.jsp");
+			//Encaminhando o request e o respose para o JSP
+			dispatcher.forward(req, resp);
+			
+		} else if (acao.equals("esc")){
+			// Pegando o id da tela
+			String id = req.getParameter("id");
+			Estado estado = new Estado();
+			estado.setId(Integer.parseInt(id));
+			estadoDAO.excluir(estado);
+			// Mensagem
+			resp.getWriter().print("Excluido!");
+		}
+	}
+
 	
 
 }

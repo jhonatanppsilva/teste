@@ -1,7 +1,9 @@
 package br.com.fabricadeprogramador.controller;
 
 import java.io.IOException;
+import java.util.List;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -45,23 +47,34 @@ public class UsuarioController extends HttpServlet{
 		resp.getWriter().print("salvo");
 		
 	}
+	
+	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		//Pegando o id da tela
-		String id = req.getParameter("id");
+		String acao = req.getParameter("acao");
+		UsuarioDAO usuarioDAO = new UsuarioDAO();
 		
-		//Preencher o objeto usuario
-		Usuario usu = new Usuario();
-		usu.setId(Integer.parseInt(id));
-		
-		//Excluir
-		UsuarioDAO usuarioDAO =  new UsuarioDAO();
-		usuarioDAO.excluir(usu);
-		
-		//Mensagem
-		resp.getWriter().print("Excluido!");
-		
+		if (acao == null || acao.equals("lis")) {
+			//Carregando a lista do banco
+			List<Usuario> lista = usuarioDAO.buscarTodos();
+			//Adicionando atributo no request
+			req.setAttribute("listaUsu", lista);
+			//Objeto de encaminhamento
+			RequestDispatcher dispatcher = req.getRequestDispatcher("WEB-INF/listausu.jsp");
+			//Encaminhando o request e o respose para o JSP
+			dispatcher.forward(req, resp);
+			
+		} else if (acao.equals("esc")){
+			// Pegando o id da tela
+			String id = req.getParameter("id");
+			Usuario usu = new Usuario();
+			usu.setId(Integer.parseInt(id));
+			usuarioDAO.excluir(usu);
+			// Mensagem
+			resp.getWriter().print("Excluido!");
+		}
 	}
+
 
 }
